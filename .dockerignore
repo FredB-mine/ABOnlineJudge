@@ -3,3 +3,4 @@ venv
 .git
 .DS_Store
 data_dev
+Uploader_log
