@@ -80,3 +80,4 @@ venv/
 #test docker-compose
 docker-compose.yml
 data_dev/
+Uploader_log/
