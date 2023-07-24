@@ -47,6 +47,15 @@ class ProblemAPI(APIView):
 
     def get(self, request):
         # 问题详情页
+        id = request.GET.get("id")
+        if id:
+            try:
+                problem = Problem.objects.get(id=id)
+                problem_data = ProblemSerializer(problem).data
+                self._add_problem_status(request, problem_data)
+                return self.success(problem_data)
+            except Problem.DoesNotExist:
+                return self.error("Problem does not exist")
         problem_id = request.GET.get("problem_id")
         if problem_id:
             try:
