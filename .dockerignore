@@ -2,3 +2,4 @@ venv
 .idea
 .git
 .DS_Store
+data_dev
