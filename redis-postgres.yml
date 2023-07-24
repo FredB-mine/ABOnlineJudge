@@ -1,0 +1,25 @@
+version: "3"
+services:
+  oj-redis:
+    image: redis:4.0-alpine
+    container_name: oj-redis
+    restart: always
+    volumes:
+      - ./data_dev/redis:/data
+    # 暴露redis服务端口
+    ports:
+      - "0.0.0.0:6380:6379"
+
+  oj-postgres:
+    image: postgres:14-alpine
+    container_name: oj-postgres
+    restart: always
+    volumes:
+      - ./data_dev/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=onlinejudge
+      - POSTGRES_USER=onlinejudge
+      - POSTGRES_PASSWORD=onlinejudge
+    # 暴露postgres端口
+    ports:
+      - "0.0.0.0:5435:5432"
