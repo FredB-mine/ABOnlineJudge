@@ -1,0 +1,1 @@
+docker buildx build --platform linux/x86_64 -t dralfred/oj-backend . --push
