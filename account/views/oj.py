@@ -36,10 +36,10 @@ class UserProfileAPI(APIView):
         判断是否登录， 若登录返回用户信息
         """
         user = request.user
-        if not user.is_authenticated:
+        username = request.GET.get("username")
+        if not user.is_authenticated and not username:
             return self.success()
         show_real_name = False
-        username = request.GET.get("username")
         try:
             if username:
                 user = User.objects.get(username=username, is_disabled=False)
