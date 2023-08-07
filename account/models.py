@@ -3,14 +3,17 @@ from django.conf import settings
 from django.db import models
 from utils.models import JSONField
 
-
 class AdminType(object):
     REGULAR_USER = "Regular User"
     ADMIN = "Admin"
     SUPER_ADMIN = "Super Admin"
 
-
 class ProblemPermission(object):
+    NONE = "None"
+    OWN = "Own"
+    ALL = "All"
+
+class TagPermission(object):
     NONE = "None"
     OWN = "Own"
     ALL = "All"
@@ -22,7 +25,6 @@ class UserManager(models.Manager):
     def get_by_natural_key(self, username):
         return self.get(**{f"{self.model.USERNAME_FIELD}__iexact": username})
 
-
 class User(AbstractBaseUser):
     username = models.TextField(unique=True)
     email = models.TextField(null=True)
@@ -30,6 +32,7 @@ class User(AbstractBaseUser):
     # One of UserType
     admin_type = models.TextField(default=AdminType.REGULAR_USER)
     problem_permission = models.TextField(default=ProblemPermission.NONE)
+    tag_permission=models.TextField(default=TagPermission.NONE)
     reset_password_token = models.TextField(null=True)
     reset_password_token_expire_time = models.DateTimeField(null=True)
     # SSO auth token
@@ -56,6 +59,12 @@ class User(AbstractBaseUser):
     def is_admin_role(self):
         return self.admin_type in [AdminType.ADMIN, AdminType.SUPER_ADMIN]
 
+    def is_tag_manager(self):
+        return self.tag_permission == TagPermission.ALL
+    
+    def is_tag_owner(self):
+        return self.tag_permission in [TagPermission.ALL, TagPermission.OWN]
+
     def can_mgmt_all_problem(self):
         return self.problem_permission == ProblemPermission.ALL
 
@@ -64,7 +73,6 @@ class User(AbstractBaseUser):
 
     class Meta:
         db_table = "user"
-
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -86,7 +94,8 @@ class UserProfile(models.Model):
     acm_problems_status = JSONField(default=dict)
     # like acm_problems_status, merely add "score" field
     oi_problems_status = JSONField(default=dict)
-
+    # user info
+    tag = JSONField(default=dict, null=True)
     real_name = models.TextField(null=True)
     avatar = models.TextField(default=f"{settings.AVATAR_URI_PREFIX}/default.png")
     blog = models.URLField(null=True)
