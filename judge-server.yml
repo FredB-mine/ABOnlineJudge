@@ -24,6 +24,6 @@ services:
       # 修改BACKEND_URL
       - BACKEND_URL=http://127.0.0.1:8000/api/judge_server_heartbeat/
       # TOKEN和运行后端时设置的TOKEN相同
-      - TOKEN=TOKEN
+      - TOKEN=1ac98198e240e322069a52a9dd65d0ed
       # - judger_debug=1
     network_mode: "host"
