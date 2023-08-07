@@ -1,1 +1,2 @@
+export JUDGE_SERVER_TOKEN=ABOJ_JUDGE_SERVER_DRALFRED
 python3.11 manage.py runserver
