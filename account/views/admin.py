@@ -1,11 +1,11 @@
 import os
 import re
-import xlsxwriter
 
-from django.db import transaction, IntegrityError
+import xlsxwriter
+from django.contrib.auth.hashers import make_password
+from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.http import HttpResponse
-from django.contrib.auth.hashers import make_password
 
 from submission.models import Submission
 from utils.api import APIView, validate_serializer
@@ -13,12 +13,12 @@ from utils.shortcuts import rand_str
 
 from ..decorators import super_admin_required
 from ..models import AdminType, ProblemPermission, User, UserProfile
-from ..serializers import EditUserSerializer, UserAdminSerializer, GenerateUserSerializer
-from ..serializers import ImportUserSeralizer
+from ..serializers import (EditUserSerializer, GenerateUserSerializer,
+                           ImportUserSerializer, UserAdminSerializer)
 
 
 class UserAdminAPI(APIView):
-    @validate_serializer(ImportUserSeralizer)
+    @validate_serializer(ImportUserSerializer)
     @super_admin_required
     def post(self, request):
         """
@@ -131,7 +131,6 @@ class UserAdminAPI(APIView):
             return self.error("Current user can not be deleted")
         User.objects.filter(id__in=ids).delete()
         return self.success()
-
 
 class GenerateUserAPI(APIView):
     @super_admin_required
