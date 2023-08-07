@@ -8,24 +8,26 @@ from django.contrib import auth
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from otpauth import OtpAuth
 
-
-from problem.models import Problem
-from utils.constants import ContestRuleType
 from options.options import SysOptions
-from utils.api import APIView, validate_serializer, CSRFExemptAPIView
+from problem.models import Problem
+from utils.api import APIView, CSRFExemptAPIView, validate_serializer
 from utils.captcha import Captcha
-from utils.shortcuts import rand_str, img2base64, datetime2str
-from ..decorators import login_required
-from ..models import User, UserProfile, AdminType
-from ..serializers import (ApplyResetPasswordSerializer, ResetPasswordSerializer,
+from utils.constants import ContestRuleType
+from utils.shortcuts import datetime2str, img2base64, rand_str
+
+from ..decorators import login_required, super_admin_required
+from ..models import AdminType, User, UserProfile
+from ..serializers import (ApplyResetPasswordSerializer,
+                           EditUserProfileSerializer, ImageUploadForm,
+                           RankInfoSerializer, ResetPasswordSerializer,
+                           SSOSerializer, TwoFactorAuthCodeSerializer,
+                           UserChangeEmailSerializer,
                            UserChangePasswordSerializer, UserLoginSerializer,
-                           UserRegisterSerializer, UsernameOrEmailCheckSerializer,
-                           RankInfoSerializer, UserChangeEmailSerializer, SSOSerializer)
-from ..serializers import (TwoFactorAuthCodeSerializer, UserProfileSerializer,
-                           EditUserProfileSerializer, ImageUploadForm)
+                           UsernameOrEmailCheckSerializer,
+                           UserProfileSerializer, UserRegisterSerializer)
 from ..tasks import send_email_async
 
 
@@ -57,10 +59,19 @@ class UserProfileAPI(APIView):
         data = request.data
         user_profile = request.user.userprofile
         for k, v in data.items():
+            if k == "tag":
+                is_tag_admin = User.objects.get(
+                    id=user_profile.id
+                ).is_tag_manager()
+                if is_tag_admin:
+                    setattr(user_profile, k, v)
+                else:
+                    return self.error("Permission denied")
             setattr(user_profile, k, v)
         user_profile.save()
-        return self.success(UserProfileSerializer(user_profile, show_real_name=True).data)
-
+        return self.success(
+            UserProfileSerializer(user_profile, show_real_name=True).data
+        )
 
 class AvatarUploadAPI(APIView):
     request_parsers = ()
