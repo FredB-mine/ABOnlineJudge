@@ -2,5 +2,6 @@ venv
 .idea
 .git
 .DS_Store
+data
 data_dev
 Uploader_log
