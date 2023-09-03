@@ -1,4 +1,5 @@
 import xmlrpc.client
+import sys
 
 if __name__ == "__main__":
     try:
@@ -7,5 +8,6 @@ if __name__ == "__main__":
             error_states = list(filter(lambda x: x["state"] != 20, info))
             exit(len(error_states))
     except Exception as e:
-        print(e.with_traceback())
+        tb = sys.exception().__traceback__
+        print(e.with_traceback(tb))
         exit(1)
